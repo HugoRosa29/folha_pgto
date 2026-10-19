@@ -55,9 +55,14 @@ exemplo) aparecem como informativos, não como inconsistência.
 - `CPF_FORMATADO` coerente com o `NR_CPF`
 - mesma matrícula com o mesmo CPF, nome, grupo e cargo em todas as linhas
 - a mesma rubrica sempre na mesma natureza
-- **nome + rubrica repetidos**, a checagem da conferência manual, agora
-  com a explicação: dois vínculos (matrículas diferentes) ou a Folha
-  também traz os mesmos lançamentos repetidos
+- **nome + verba repetidos**: a checagem da conferência manual (o
+  `COUNTIF` da chave *nome e verba para conferência* na Conf). Toda
+  repetição é **apontada como inconsistência**, para conferência, com a
+  mesma chave da Conf (ex.: `Adailton Silva Da Costa106`). Ao lado vai a
+  causa provável, que faz o papel da anotação manual ("ok. 2 vínculos",
+  "ok. Folha complementar"): dois vínculos (matrículas diferentes), a
+  Folha também traz os mesmos lançamentos repetidos, ou *sem causa
+  identificada*. A checagem roda nas três empresas, não só na Terracap.
 
 ## Como usar
 

@@ -157,7 +157,8 @@ def _resumo(livro, resultado):
          sum(1 for c in resultado["colaboradores"] if c["lado"] == "Só na Folha" and c["relevante"])),
         ("Nomes diferentes (mesma matrícula)", len(resultado["nomes_diferentes"])),
         ("Problemas internos do TXT", len(resultado["internos"]["problemas"])),
-        ("Repetições nome + rubrica sem explicação",
+        ("Nome + verba repetidos no TXT (checagem da Conf)", len(resultado["internos"]["repeticoes"])),
+        ("   sem causa provável identificada",
          sum(1 for r in resultado["internos"]["repeticoes"] if not r["explicada"])),
     ]
 
@@ -178,7 +179,6 @@ def _resumo(livro, resultado):
         ("   das quais proventos", sum(1 for r in fora if r["provento"])),
         ("Colaboradores só na Folha, só com rubricas não publicadas",
          sum(1 for c in resultado["colaboradores"] if not c["relevante"])),
-        ("Repetições nome + rubrica explicadas", sum(1 for r in resultado["internos"]["repeticoes"] if r["explicada"])),
     ]
 
     for rotulo, quantidade in informativo:
@@ -247,6 +247,26 @@ def montar_planilha(resultado):
         vazio="Todos os colaboradores estão nos dois lados.",
     )
 
+    # A checagem da conferência manual (Conf Portal Transparência):
+    # a coluna "nome e verba para conferência" usa a mesma chave.
+    _escrever_aba(
+        livro,
+        "Nome+verba repetidos (Conf)",
+        [
+            "Empresa", "nome e verba para conferência", "Nome", "Matrículas", "Rubrica",
+            "Descrição", "QTDE", "Valores", "Causa provável", "Causa identificada",
+        ],
+        [
+            [
+                r["empresa"], r["chave_conf"], r["nome"], r["matriculas"], r["codigo"],
+                r["rubrica"], r["quantidade"], r["valores"], r["explicacao"],
+                "Sim" if r["explicada"] else "Não",
+            ]
+            for r in resultado["internos"]["repeticoes"]
+        ],
+        vazio="Nenhum nome com a mesma verba repetida no TXT.",
+    )
+
     _escrever_aba(
         livro,
         "Rubricas fora do portal",
@@ -288,20 +308,6 @@ def montar_planilha(resultado):
         vazio="Os nomes conferem em todas as matrículas.",
     )
 
-    _escrever_aba(
-        livro,
-        "Repeticoes nome+rubrica",
-        ["Empresa", "Nome", "Matrículas", "Rubrica", "Descrição", "Vezes", "Valores", "Explicação", "Explicada"],
-        [
-            [
-                r["empresa"], r["nome"], r["matriculas"], r["codigo"], r["rubrica"],
-                r["quantidade"], r["valores"], r["explicacao"],
-                "Sim" if r["explicada"] else "Não",
-            ]
-            for r in resultado["internos"]["repeticoes"]
-        ],
-        vazio="Nenhum nome com a mesma rubrica repetida.",
-    )
 
     _escrever_aba(
         livro,

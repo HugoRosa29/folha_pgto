@@ -121,7 +121,7 @@ class Sinteticos(unittest.TestCase):
         self.assertEqual(lados, {("Só no TXT", "9", True), ("Só na Folha", "3", True)})
         self.assertFalse(resultado["confere"])
 
-    def test_repeticao_explicada_pela_folha(self):
+    def test_repeticao_e_apontada_mesmo_com_causa_provavel(self):
         resultado = comparar(
             [txt(
                 linha_txt(5, "Maria", 106, "ATS", recebimento="638.65"),
@@ -133,9 +133,25 @@ class Sinteticos(unittest.TestCase):
             ),
         )
 
-        self.assertTrue(resultado["confere"])
+        # Bate com a Folha, mas a checagem da Conf aponta a repetição.
+        self.assertEqual(resultado["divergencias"], [])
+        self.assertFalse(resultado["confere"])
+
         repeticao, = resultado["internos"]["repeticoes"]
+        self.assertEqual(repeticao["chave_conf"], "Maria106")
         self.assertTrue(repeticao["explicada"])
+
+    def test_repeticao_sem_causa(self):
+        resultado = comparar(
+            [txt(
+                linha_txt(5, "Maria", 106, "ATS", recebimento="100"),
+                linha_txt(5, "Maria", 106, "ATS", recebimento="100"),
+            )],
+            folha((5, "Maria", 106, "ATS", 100, 1)),
+        )
+
+        repeticao, = resultado["internos"]["repeticoes"]
+        self.assertFalse(repeticao["explicada"])
 
     def test_mesmo_total_com_lancamentos_diferentes(self):
         resultado = comparar(
@@ -234,14 +250,29 @@ class ArquivosReaisSetembro2026(unittest.TestCase):
         self.assertEqual(etr["divergencias"], 0)
         self.assertEqual(etr["proventos_txt"], etr["proventos_folha"])
 
-    def test_repeticoes_da_conferencia_manual_estao_explicadas(self):
-        terracap = [
-            r for r in self.resultado["internos"]["repeticoes"] if r["empresa"] == "TERRACAP"
-        ]
+    def test_aponta_o_mesmo_que_a_conferencia_manual(self):
+        terracap = {
+            r["chave_conf"]: r["quantidade"]
+            for r in self.resultado["internos"]["repeticoes"] if r["empresa"] == "TERRACAP"
+        }
 
-        # As 9 chaves nome+verba com QTDE 2 da "Conf Portal Transparência".
-        self.assertEqual(len(terracap), 9)
-        self.assertTrue(all(r["explicada"] for r in terracap))
+        # As 9 chaves "nome e verba para conferência" com QTDE 2 na
+        # Planilha3 da Conf Portal Transparência TERRACAP.
+        self.assertEqual(terracap, {
+            "Adailton Silva Da Costa106": 2,
+            "Adailton Silva Da Costa1": 2,
+            "Jader Cabral De Almeida1600": 2,
+            "Julio Cesar de Azevedo Reis1600": 2,
+            "Maria Sitonio De Jesus Velasco5015": 2,
+            "Maria Sitonio De Jesus Velasco5012": 2,
+            "Maria Sitonio De Jesus Velasco106": 2,
+            "Maria Sitonio De Jesus Velasco102": 2,
+            "Maria Sitonio De Jesus Velasco10501": 2,
+        })
+
+        # ETR e BIOTIC não estavam na Conf; a mesma checagem acha mais duas.
+        self.assertEqual(len(self.resultado["internos"]["repeticoes"]), 11)
+        self.assertFalse(self.resultado["confere"])
 
     def test_nada_alem_disso(self):
         self.assertEqual(self.resultado["nomes_diferentes"], [])

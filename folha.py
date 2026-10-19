@@ -884,7 +884,7 @@ def conferir(txts, folha):
             and not nomes_diferentes
             and not any(c["relevante"] for c in colaboradores)
             and not internos["problemas"]
-            and all(r["explicada"] for r in internos["repeticoes"])
+            and not internos["repeticoes"]
         ),
     }
 
@@ -952,8 +952,10 @@ def _checar_txt(txts, linhas_txt, por_chave_folha):
                 "conteudo": "",
             })
 
-    # Repetições de nome + rubrica, como na conferência manual
-    # (Conf Portal Transparência), já com a explicação de cada uma.
+    # Repetições de nome + rubrica: a mesma checagem da conferência
+    # manual (Conf Portal Transparência, COUNTIF de NOME & CD_RUBRICA).
+    # Toda repetição é apontada; a causa provável substitui a
+    # anotação que o analista fazia à mão ("ok. 2 vínculos").
     por_nome = defaultdict(list)
 
     for linha in linhas_txt:
@@ -968,7 +970,7 @@ def _checar_txt(txts, linhas_txt, por_chave_folha):
         matriculas = sorted({l["matricula"] for l in linhas})
 
         if len(matriculas) > 1:
-            explicacao = f"{len(matriculas)} vínculos (matrículas {', '.join(matriculas)})"
+            explicacao = f"Provável: {len(matriculas)} vínculos (matrículas {', '.join(matriculas)})"
             explicada = True
         else:
             na_folha = por_chave_folha.get((empresa, matriculas[0], codigo), [])
@@ -977,13 +979,13 @@ def _checar_txt(txts, linhas_txt, por_chave_folha):
 
             if valores_txt == valores_folha:
                 explicacao = (
-                    f"A Folha também traz {len(na_folha)} lançamentos "
-                    "com os mesmos valores"
+                    f"Provável: a Folha também traz {len(na_folha)} lançamentos "
+                    "com os mesmos valores (folha complementar no mês?)"
                 )
                 explicada = True
             else:
                 explicacao = (
-                    f"Repetido no TXT; a Folha traz {len(na_folha)} "
+                    f"Sem causa identificada: a Folha traz {len(na_folha)} "
                     "lançamento(s) com outros valores"
                 )
                 explicada = False
@@ -991,6 +993,7 @@ def _checar_txt(txts, linhas_txt, por_chave_folha):
         repeticoes.append({
             "empresa": empresa,
             "nome": linhas[0]["nome"],
+            "chave_conf": f"{linhas[0]['nome']}{codigo}",
             "matriculas": ", ".join(matriculas),
             "codigo": codigo,
             "rubrica": linhas[0]["rubrica"],

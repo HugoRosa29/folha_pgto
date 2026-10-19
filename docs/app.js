@@ -363,7 +363,7 @@ function desenharPrestacaoDeContas(resultado) {
   const soNoTxt = colaboradores.filter((c) => c.lado === "Só no TXT");
   const soNaFolha = colaboradores.filter((c) => c.lado === "Só na Folha");
   const soltas = resultado.divergencias.filter((d) => !d.colaborador_ausente);
-  const repeticoes = resultado.internos.repeticoes.filter((r) => !r.explicada);
+  const repeticoes = resultado.internos.repeticoes;
 
   const contas = [
     linhaConta(
@@ -385,7 +385,7 @@ function desenharPrestacaoDeContas(resultado) {
   contas.push(
     linhaConta("Nomes diferentes na mesma matrícula", inteiro.format(resultado.nomes_diferentes.length)),
     linhaConta("Problemas de layout ou cadastro no TXT", inteiro.format(resultado.internos.problemas.length)),
-    linhaConta("Nome + rubrica repetidos sem explicação", inteiro.format(repeticoes.length), "total"),
+    linhaConta("Nome + verba repetidos no TXT (checagem da Conf)", inteiro.format(repeticoes.length), "total"),
   );
 
   const selo = resultado.confere
@@ -528,26 +528,29 @@ function desenharRubricas(resultado) {
 function desenharRepeticoes(resultado) {
   const linhas = resultado.internos.repeticoes.map((r) => ({
     ...r,
-    situacao: r.explicada ? carimbo("Explicada", "andamento") : carimbo("Verificar", "encerrado"),
+    situacao: carimbo(`Repetido ${r.quantidade}x`, "encerrado"),
+    causa: r.explicada
+      ? escapar(r.explicacao)
+      : `<span class="pendente">${escapar(r.explicacao)}</span>`,
   }));
 
   el('[data-painel="repeticoes"]').innerHTML =
-    `<p class="nota-tabela">A mesma checagem da conferência manual (nome + verba repetidos no TXT),
-      já com a explicação: dois vínculos com matrículas diferentes, ou a Folha também traz os
-      mesmos lançamentos repetidos.</p>` +
+    `<p class="nota-tabela">A mesma checagem da conferência manual (Conf Portal Transparência):
+      a chave <em>nome e verba para conferência</em> (nome + código da rubrica) aparece mais de
+      uma vez no TXT. Cada repetição é apontada para conferência; a causa provável é a
+      análise automática contra a Folha e não dispensa a verificação.</p>` +
     tabela(
       [
         { titulo: "Situação", chave: "situacao", html: true },
         { titulo: "Empresa", chave: "empresa" },
-        { titulo: "Nome", chave: "nome" },
+        { titulo: "Nome e verba para conferência", chave: "chave_conf" },
         { titulo: "Matrículas", chave: "matriculas" },
-        { titulo: "Rubrica", chave: "codigo" },
         { titulo: "Descrição", chave: "rubrica" },
         { titulo: "Valores", chave: "valores", numero: true },
-        { titulo: "Explicação", chave: "explicacao" },
+        { titulo: "Causa provável", chave: "causa", html: true },
       ],
       linhas,
-      "Nenhum nome com a mesma rubrica repetida no TXT.",
+      "Nenhum nome com a mesma verba repetida no TXT.",
     );
 }
 

@@ -181,13 +181,13 @@ def relatar(resultado):
             onde = f"{p['arquivo']}:{p['linha']}" if p["linha"] else p["arquivo"]
             print(f"  {onde}  {p['problema']}")
 
-    sem_explicacao = [r for r in internos["repeticoes"] if not r["explicada"]]
+    repeticoes = internos["repeticoes"]
 
-    if sem_explicacao:
-        secao(f"Nome + rubrica repetidos sem explicação ({len(sem_explicacao)})")
+    if repeticoes:
+        secao(f"Nome + verba repetidos no TXT, checagem da Conf ({len(repeticoes)})")
 
-        for r in sem_explicacao:
-            print(f"  {r['empresa']:<9} {r['nome'][:30]:<30} {r['codigo']:>6}  {r['valores']}")
+        for r in repeticoes:
+            print(f"  {r['empresa']:<9} {r['chave_conf'][:44]:<44} {r['quantidade']}x  {r['valores']}")
             print(f"  {'':<9} {r['explicacao']}")
 
     if resultado["confere"]:
@@ -225,14 +225,6 @@ def relatar(resultado):
         secao(f"Colaboradores só na Folha, só com rubricas não publicadas ({len(informativos)})")
         for grupo, quantidade in sorted(grupos.items(), key=lambda g: -g[1]):
             print(f"  {quantidade:>4}  {grupo}")
-
-    explicadas = [r for r in internos["repeticoes"] if r["explicada"]]
-
-    if explicadas:
-        secao(f"Nome + rubrica repetidos, já explicados ({len(explicadas)})")
-
-        for r in explicadas:
-            print(f"  {r['empresa']:<9} {r['nome'][:30]:<30} {str(r['codigo']):>6}  {r['explicacao']}")
 
     print()
 

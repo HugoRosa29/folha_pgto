@@ -942,3 +942,6 @@ footer a { color: var(--verde); }
 
 /* Vários TXT na mesma caixa: um arquivo por linha. */
 .caixa-arquivo[data-campo="txts"] .nome { white-space: pre-line; }
+
+/* A causa provável é texto corrido: não deixa a coluna espremer. */
+[data-painel="repeticoes"] td:last-child { min-width: 300px; }

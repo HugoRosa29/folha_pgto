@@ -1,0 +1,5 @@
+# Núcleo da conferência (linha de comando e navegador).
+# São bibliotecas Python puras, por isso rodam também no
+# Pyodide, dentro do navegador.
+openpyxl==3.1.5
+XlsxWriter==3.2.9

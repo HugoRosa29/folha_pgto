@@ -1,0 +1,15 @@
+# Arquivos de folha: nunca versionar. Trazem nome, CPF e a
+# remuneração de cada colaborador.
+ARQUIVOS_REF/
+REMUNERACAO_*.txt
+Folha*.xlsx
+Conf*.xlsx
+conferencia*.xlsx
+*.docx
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.dist/

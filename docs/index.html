@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conferência da Folha</title>
+<meta name="description" content="Confere os TXT de remuneração do Portal da Transparência com a Folha do BENNER, processado no próprio navegador.">
+<meta name="theme-color" content="#003D6B">
+<link rel="icon" href="marca.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="faixa">
+
+    <div class="identidade">
+      <img class="marca" src="terracap_logo_big.png"
+           alt="Terracap — Companhia Imobiliária de Brasília" width="256" height="56">
+      <div class="titulo-app">
+        <p class="sobrancelha">Portal da Transparência</p>
+        <h1>Conferência da Folha</h1>
+      </div>
+    </div>
+
+    <div class="identidade-direita">
+      <div class="linha-topo">
+        <p class="coordenadas">15&deg;47'38"S&nbsp;&nbsp;47&deg;55'40"O &middot; BRASÍLIA &middot; DF</p>
+        <button id="botao-tema" type="button" class="tema"
+                title="Alternar tema claro e escuro" aria-live="polite">
+          <svg class="icone-sol" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2.5v2.6M12 18.9v2.6M21.5 12h-2.6M5.1 12H2.5
+                     M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8
+                     M18.7 18.7l-1.8-1.8M7.1 7.1L5.3 5.3"/>
+          </svg>
+          <svg class="icone-lua" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z"/>
+          </svg>
+          <span id="tema-texto">Tema escuro</span>
+        </button>
+      </div>
+      <div id="estado-runtime" class="carimbo carimbo-estudo">
+        <span class="pulso"></span>
+        <span id="estado-texto">Carregando o motor de cálculo</span>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<div class="divisor-eixo" role="presentation">
+  <span class="eixo"></span>
+  <img class="marca-divisor" src="marca.png" alt="" width="47" height="56">
+  <span class="eixo"></span>
+</div>
+
+<main>
+
+  <section class="moldura privacidade revelar">
+    <p>
+      <strong>Seus arquivos não saem deste computador.</strong>
+      O cálculo roda inteiramente dentro do navegador: não há
+      servidor, upload nem armazenamento dos dados.
+    </p>
+  </section>
+
+  <section class="moldura revelar">
+    <p class="sobrancelha-secao">01 &mdash; Entrada</p>
+    <h2>Os arquivos da competência</h2>
+
+    <div class="grade-arquivos">
+
+      <label class="caixa-arquivo" data-campo="txts">
+        <input type="file" accept=".txt" multiple hidden>
+        <span class="codigo">PORTAL / REMUNERAÇÃO</span>
+        <span class="rotulo">TXT de cada empresa</span>
+        <span class="formato">REMUNERACAO_&lt;EMPRESA&gt;_AAAAMMDD.txt — selecione todos</span>
+        <span class="nome">Clique ou arraste os arquivos</span>
+      </label>
+
+      <label class="caixa-arquivo" data-campo="folha">
+        <input type="file" accept=".xlsx,.xlsm" hidden>
+        <span class="codigo">BENNER / FOLHA</span>
+        <span class="rotulo">Folha das empresas</span>
+        <span class="formato">Saída do SELECT da Folha (XLSX)</span>
+        <span class="nome">Clique ou arraste o arquivo</span>
+      </label>
+
+    </div>
+
+    <p class="nota-entrada">
+      Envie os TXT das três empresas (TERRACAP, ETR e BIOTIC) de
+      uma vez, e a planilha da Folha da mesma competência. Cada TXT
+      se identifica pelo CNPJ que traz dentro, então o nome do
+      arquivo não importa.
+    </p>
+
+    <div class="acoes">
+      <button id="botao-conferir" type="button" disabled>Conferir</button>
+      <button id="botao-limpar" type="button" class="secundario">Limpar</button>
+      <span id="mensagem" class="mensagem"></span>
+    </div>
+  </section>
+
+  <div id="resultado" hidden>
+
+    <div id="avisos"></div>
+
+    <section class="moldura">
+      <div class="cabecalho-secao">
+        <div>
+          <p class="sobrancelha-secao">02 &mdash; Conferência</p>
+          <h2>Portal x Folha, empresa por empresa</h2>
+        </div>
+        <button id="botao-exportar" type="button" class="secundario">
+          Baixar Excel
+        </button>
+      </div>
+
+      <div id="indicadores" class="indicadores"></div>
+    </section>
+
+    <!-- Modo satélite: a única quebra de fundo da página,
+         reservada para o que não fechou. -->
+    <section class="satelite" id="cartao-divergencia">
+      <p class="sobrancelha-secao">03 &mdash; Prestação de contas</p>
+      <h2>O que não fechou</h2>
+      <div id="divergencia"></div>
+    </section>
+
+    <section class="moldura" id="cartao-tabelas">
+      <p class="sobrancelha-secao">04 &mdash; Detalhamento</p>
+      <h2>Item a item</h2>
+
+      <div class="abas" role="tablist">
+        <button class="aba ativa" data-aba="colaboradores" role="tab">
+          Colaboradores de um lado só
+        </button>
+        <button class="aba" data-aba="divergencias" role="tab">
+          Lançamentos divergentes
+        </button>
+        <button class="aba" data-aba="rubricas" role="tab">
+          Rubricas fora do portal
+        </button>
+        <button class="aba" data-aba="repeticoes" role="tab">
+          Nome + rubrica repetidos
+        </button>
+        <button class="aba" data-aba="cadastro" role="tab">
+          Nomes e layout do TXT
+        </button>
+        <button class="aba" data-aba="informativo" role="tab">
+          Só na Folha (informativo)
+        </button>
+      </div>
+
+      <div class="painel" data-painel="colaboradores"></div>
+      <div class="painel" data-painel="divergencias" hidden></div>
+      <div class="painel" data-painel="rubricas" hidden></div>
+      <div class="painel" data-painel="repeticoes" hidden></div>
+      <div class="painel" data-painel="cadastro" hidden></div>
+      <div class="painel" data-painel="informativo" hidden></div>
+    </section>
+
+  </div>
+
+  <div class="divisor-eixo" role="presentation">
+    <span class="eixo"></span>
+    <img class="marca-divisor" src="marca.png" alt="" width="47" height="56">
+    <span class="eixo"></span>
+  </div>
+
+  <section class="moldura como-funciona revelar">
+    <p class="sobrancelha-secao">05 &mdash; Método</p>
+    <h2>Como a conferência é feita</h2>
+
+    <ol class="capitulos">
+      <li>
+        <span class="codigo">CHAVE</span>
+        <p>
+          Cada lançamento é casado por <em>empresa + matrícula +
+          rubrica</em>, não pelo nome: duas pessoas com o mesmo
+          nome, ou a mesma pessoa com dois vínculos, não se
+          confundem. Lançamentos repetidos na mesma chave são
+          comparados pela soma e pela lista de valores.
+        </p>
+      </li>
+      <li>
+        <span class="codigo">VALOR E TIPO</span>
+        <p>
+          O <code>VL_RECEBIMENTO</code> do TXT é comparado com os
+          proventos da Folha (<code>TIPOVERBA = 1</code>) e o
+          <code>VL_DESCONTO</code> com os descontos
+          (<code>TIPOVERBA = 2</code>), centavo por centavo.
+        </p>
+      </li>
+      <li>
+        <span class="codigo">RUBRICAS PUBLICADAS</span>
+        <p>
+          O portal não publica todas as rubricas da Folha (planos,
+          empréstimos, bolsa de estágio...). Uma rubrica que não
+          aparece em nenhum TXT não é cobrada linha a linha: vai
+          para o resumo <em>Rubricas fora do portal</em>, com os
+          proventos em destaque.
+        </p>
+      </li>
+      <li>
+        <span class="codigo">COLABORADORES</span>
+        <p>
+          Quem está no TXT e não tem nenhum lançamento na Folha
+          (em geral uma rescisão, que sai em outra folha) e quem
+          está na Folha com rubricas publicadas mas não aparece no
+          TXT.
+        </p>
+      </li>
+      <li>
+        <span class="codigo">TXT</span>
+        <p>
+          Layout de 30 campos, CPF mascarado coerente com o CPF,
+          cadastro igual em todas as linhas da matrícula e a mesma
+          checagem da conferência manual: nome + rubrica repetidos,
+          agora com a explicação de cada repetição.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <div class="rodape">
+    <img class="marca-rodape" src="marca.png" alt="" width="47" height="56">
+    <div>
+      <p class="coordenadas">15&deg;47'38"S&nbsp;&nbsp;47&deg;55'40"O &middot; BRASÍLIA &middot; DF</p>
+      <p>
+        Processamento local via
+        <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a>.
+        O mesmo núcleo em Python roda no navegador e na linha de
+        comando.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
